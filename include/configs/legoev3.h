@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2016 David Lechner <david@lechnology.com>
+ * Copyright (C) 2016,2018 David Lechner <david@lechnology.com>
  *
  * Based on da850evm.h
  *
@@ -68,6 +68,7 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_MX_CYCLIC
+#define CONFIG_MISC_INIT_R
 
 /*
  * Linux Information
@@ -75,8 +76,6 @@
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SERIAL_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
 #define CONFIG_BOOTCOMMAND \
