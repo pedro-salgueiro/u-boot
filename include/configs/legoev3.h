@@ -80,26 +80,22 @@
 #define CONFIG_SETUP_INITRD_TAG
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
-		"if run loadbootscr; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadbootenv; then " \
-				"echo Loaded env from ${bootenvfile};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run mmcargs; " \
-				"if run loadfdt; then " \
-					"echo Using ${fdtfile}...;" \
-					"run fdtfixup; " \
-					"run fdtboot; "\
-				"fi; " \
-				"run mmcboot; " \
+		"if run loadbootenv; then " \
+			"echo Loaded env from ${bootenvfile};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loadimage; then " \
+			"run mmcargs; " \
+			"if run loadfdt; then " \
+				"echo Using ${fdtfile}...;" \
+				"run fdtfixup; " \
+				"run fdtboot; "\
 			"fi; " \
+			"run mmcboot; " \
 		"fi; " \
 	"fi; "\
 	"run flashargs; " \
