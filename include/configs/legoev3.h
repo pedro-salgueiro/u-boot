@@ -81,7 +81,7 @@
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
 		"if run loadbootenv; then " \
-			"echo Loaded env from ${bootenvfile};" \
+			"echo Loaded env from ${bootenv};" \
 			"run importbootenv;" \
 		"fi;" \
 		"if test -n $uenvcmd; then " \
@@ -101,7 +101,7 @@
 	"run flashargs; " \
 	"run flashboot"
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootenvfile=uEnv.txt\0" \
+	"bootenv=uEnv.txt\0" \
 	"fdtfile=da850-lego-ev3.dtb\0" \
 	"memsize=64M\0" \
 	"filesyssize=10M\0" \
@@ -114,7 +114,7 @@
 	"fwupdateboot=mw 0xFFFF1FFC 0x5555AAAA; reset\0" \
 	"importbootenv=echo Importing environment...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
-	"loadbootenv=fatload mmc 0 ${loadaddr} ${bootenvfile}\0" \
+	"loadbootenv=fatload mmc 0 ${loadaddr} ${bootenv}\0" \
 	"mmcargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw " \
 		"rootwait ${optargs}\0" \
 	"mmcboot=bootm ${loadaddr}\0" \
