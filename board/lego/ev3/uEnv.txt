@@ -14,3 +14,8 @@ console=tty1
 
 # force kernel version
 #fk_kvers=
+
+# uncomment to increase CPU frequency
+# 375MHz is rated speed at available voltage (1.2V)
+# 456MHz is max rated speed of CPU (supposed to have 1.3V for this)
+#cpufreq=375
