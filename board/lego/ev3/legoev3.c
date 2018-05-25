@@ -221,13 +221,6 @@ static void set_pll_rate(unsigned long pllm, unsigned long postdiv)
 	 * mode
 	 */
 	setbits_le32(&davinci_pllc0_regs->pllctl, PLLCTL_PLLEN);
-
-	/*
-	 * clear EMIFA and EMIFB clock source settings, let them
-	 * run off SYSCLK
-	 */
-	dv_maskbits(&davinci_syscfg_regs->cfgchip3,
-		    ~(PLL_SCSCFG3_DIV45PENA | PLL_SCSCFG3_EMA_CLKSRC));
 }
 
 /* change the PLL rate before handing off to Linux */
