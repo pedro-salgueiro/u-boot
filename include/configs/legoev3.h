@@ -100,9 +100,7 @@
 			"fi; " \
 			"run mmcboot; " \
 		"fi; " \
-	"fi; "\
-	"run flashargs; " \
-	"run flashboot"
+	"fi"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdtfile=da850-lego-ev3.dtb\0" \
 	"console=ttyS1,115200n8\0" \
@@ -123,15 +121,6 @@
 	"mmcargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw " \
 		"rootwait ${optargs}\0" \
 	"mmcboot=bootm ${kernel_addr_r}\0" \
-	"flashargs=setenv bootargs initrd=${ramdisk_addr_r},${filesyssize} " \
-		"root=/dev/ram0 rw rootfstype=squashfs console=${console} " \
-		"${optargs}\0" \
-	"flashboot=sf probe 0; " \
-		"sf read ${fdt_addr_r} 0x40000 0x10000; " \
-		"sf read ${kernel_addr_r} 0x50000 0x400000; " \
-		"sf read ${ramdisk_addr_r} 0x450000 0xA00000; " \
-		"run fdtfixup; " \
-		"run fdtboot\0" \
 	"loadimage=fatload mmc 0 ${kernel_addr_r} uImage\0" \
 	"loadfdt=fatload mmc 0 ${fdt_addr_r} ${fdtfile}\0" \
 	"fdtfixup=fdt addr ${fdt_addr_r}; fdt resize; fdt chosen\0" \
