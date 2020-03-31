@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2016 David Lechner <david@lechnology.com>
+ * Copyright (C) 2016,2018 David Lechner <david@lechnology.com>
  *
  * Based on da850evm.h
  *
@@ -38,6 +38,8 @@
 /* memtest will be run on 16MB */
 #define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
+#define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
+
 /*
  * Serial Driver info
  */
@@ -60,6 +62,8 @@
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
+#define CONFIG_MX_CYCLIC
+#define CONFIG_MISC_INIT_R
 
 /*
  * Linux Information
@@ -67,69 +71,57 @@
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_HWCONFIG		/* enable hwconfig */
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SERIAL_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_SETUP_INITRD_TAG
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
+		"if run loadbootenv; then " \
+			"echo Loaded env from ${bootenv};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd...;" \
+			"run uenvcmd;" \
+		"fi;" \
 		"if run loadbootscr; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadbootenv; then " \
-				"echo Loaded env from ${bootenvfile};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run mmcargs; " \
-				"if run loadfdt; then " \
-					"echo Using ${fdtfile}...;" \
-					"run fdtfixup; " \
-					"run fdtboot; "\
-				"fi; " \
-				"run mmcboot; " \
+			"run bootscript;" \
+		"fi;" \
+		"if run loadimage; then " \
+			"run mmcargs; " \
+			"if run loadfdt; then " \
+				"echo Using ${fdtfile}...;" \
+				"run fdtfixup; " \
+				"run fdtboot; "\
 			"fi; " \
+			"run mmcboot; " \
 		"fi; " \
-	"fi; "\
-	"run flashargs; " \
-	"run flashboot"
+	"fi"
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootenvfile=uEnv.txt\0" \
 	"fdtfile=da850-lego-ev3.dtb\0" \
-	"memsize=64M\0" \
-	"filesyssize=10M\0" \
-	"verify=n\0" \
 	"console=ttyS1,115200n8\0" \
-	"bootscraddr=0xC0600000\0" \
-	"fdtaddr=0xC0600000\0" \
-	"loadaddr=0xC0007FC0\0" \
-	"filesysaddr=0xC1180000\0" \
+	"bootenv=uEnv.txt\0" \
+	"devtype=mmc\0" \
+	"devnum=0\0" \
+	"bootpart=1\0" \
+	"distro_bootpart=2\0" \
+	"prefix=/boot/\0" \
+	"fdt_addr_r=0xc0600000\0" \
+	"kernel_addr_r=0xc0007fc0\0" \
+	"ramdisk_addr_r=0xc1180000\0" \
+	"scriptaddr=0xc0700000\0" \
 	"fwupdateboot=mw 0xFFFF1FFC 0x5555AAAA; reset\0" \
 	"importbootenv=echo Importing environment...; " \
-		"env import -t ${loadaddr} ${filesize}\0" \
-	"loadbootenv=fatload mmc 0 ${loadaddr} ${bootenvfile}\0" \
+		"env import -t ${scriptaddr} ${filesize}\0" \
+	"loadbootenv=load ${devtype} ${devnum}:${bootpart} ${scriptaddr} ${bootenv}\0" \
 	"mmcargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw " \
 		"rootwait ${optargs}\0" \
-	"mmcboot=bootm ${loadaddr}\0" \
-	"flashargs=setenv bootargs initrd=${filesysaddr},${filesyssize} " \
-		"root=/dev/ram0 rw rootfstype=squashfs console=${console} " \
-		"${optargs}\0" \
-	"flashboot=sf probe 0; " \
-		"sf read ${fdtaddr} 0x40000 0x10000; " \
-		"sf read ${loadaddr} 0x50000 0x400000; " \
-		"sf read ${filesysaddr} 0x450000 0xA00000; " \
-		"run fdtfixup; " \
-		"run fdtboot\0" \
-	"loadimage=fatload mmc 0 ${loadaddr} uImage\0" \
-	"loadfdt=fatload mmc 0 ${fdtaddr} ${fdtfile}\0" \
-	"fdtfixup=fdt addr ${fdtaddr}; fdt resize; fdt chosen\0" \
-	"fdtboot=bootm ${loadaddr} - ${fdtaddr}\0" \
-	"loadbootscr=fatload mmc 0 ${bootscraddr} boot.scr\0" \
-	"bootscript=source ${bootscraddr}\0"
+	"mmcboot=bootm ${kernel_addr_r}\0" \
+	"loadimage=fatload mmc 0 ${kernel_addr_r} uImage\0" \
+	"loadfdt=fatload mmc 0 ${fdt_addr_r} ${fdtfile}\0" \
+	"fdtfixup=fdt addr ${fdt_addr_r}; fdt resize; fdt chosen\0" \
+	"fdtboot=bootm ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"loadbootscr=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}boot.scr\0" \
+	"bootscript=source ${scriptaddr}\0"
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
