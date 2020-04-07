@@ -1,7 +1,7 @@
 # Boot options for advanced users
 
 # comment this line to enable kernel messages on input port 1
-console=tty1
+console=ttyS1,115200n8
 
 # uncomment this line to enable the lms2012-compat drivers
 #fdtfile=da850-lego-ev3-lms2012.dtb
